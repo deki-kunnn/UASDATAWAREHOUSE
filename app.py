@@ -1,9 +1,13 @@
 import streamlit as st
 import pickle
 import numpy as np
+import os
 
 # Load the pre-trained model
-model = pickle.load(open('model_uas.pkl', 'rb'))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(current_dir, 'model_uas.pkl')
+
+model = pickle.load(open(model_path, 'rb'))
 
 # Create a title for the app
 st.title("Prediksi Premi Asuransi Kesehatan")

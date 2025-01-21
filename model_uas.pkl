@@ -1,0 +1,49 @@
+import numpy as np
+import pandas as pd
+# import seaborn as sns
+# import matplotlib.pyplot as plt
+df = pd.read_csv('insurance1.csv')
+df.head()
+df.info()
+df.describe()
+df.isna().sum()
+from sklearn.preprocessing import OrdinalEncoder
+required_columns = ['sex', 'smoker']  # Tambahkan 'region' jika diperlukan
+for col in required_columns:
+    if col not in df.columns:
+        raise KeyError(f"Kolom '{col}' tidak ditemukan di DataFrame.")
+    oe = OrdinalEncoder()
+    # df[['sex','smoker','region']]=df[['sex','smoker','region']].astype(int)
+df[['sex', 'smoker']] = oe.fit_transform(df[['sex', 'smoker']]).astype(int)
+print(df.head())
+print(df.columns)
+
+target = df['charges']
+features = df.drop(columns=['charges'])
+#Standardization
+from sklearn.preprocessing import StandardScaler
+import pandas as pd
+sc = StandardScaler()
+features = sc.fit_transform(features)
+features_df = pd.DataFrame(features, columns=df.drop(columns=['charges']).columns)
+print(features_df.head())
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+import numpy as np
+x_train, x_test, y_train, y_test = train_test_split(
+    features, target, shuffle=True, train_size=0.8, random_state=1
+    print(f"x_train: {len(x_train)}")
+    print(f"x_test: {len(x_test)})
+    #Training
+model_uas = LinearRegression()
+model_uas.fit(x_train, y_train)
+
+from sklearn.metrics import r2_score, mean_squared_error
+import pickle
+import os
+pred = model_uas.predict(x_test)
+print('R2 Score:', r2_score(y_test, pred))
+print('Mean Squared Error:', mean_squared_error(y_test, pred))
+print("Prediksi pertama:", pred[:5])
+print("Nilai aktual pertama:", y_test[:5])

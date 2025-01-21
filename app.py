@@ -1,38 +1,43 @@
 import streamlit as st
 import pickle
 import numpy as np
-import os
 
-# Load the pre-trained model
-current_dir = os.path.dirname(os.path.abspath(__file__))
-model_path = os.path.join(current_dir, 'model_uas.pkl')
+# Load model dan scaler
+with open('insurance_model.pkl', 'rb') as model_file:
+    model = pickle.load(model_file)
 
-model = pickle.load(open(model_path, 'rb'))
+with open('scaler.pkl', 'rb') as scaler_file:
+    scaler = pickle.load(scaler_file)
 
-# Create a title for the app
-st.title("Prediksi Premi Asuransi Kesehatan")
+# Judul aplikasi
+st.title('Prediksi Biaya Asuransi')
 
-# Create input fields for each attribute
-age = st.number_input("Usia", min_value=18)
-sex = st.selectbox("Jenis Kelamin", options=["Laki-laki", "Perempuan"])
-bmi = st.number_input("BMI")
-children = st.number_input("Jumlah Anak", min_value=0)
-smoker = st.selectbox("Perokok?", options=["Ya", "Tidak"])
+# Informasi Pembuat
+st.sidebar.header('Informasi Pembuat')
+st.sidebar.write('Nama: SALMAN ALFARITSI')
+st.sidebar.write('NIM: 2021230055')
 
-# Convert categorical values to numerical
-sex = 1 if sex == "Laki-laki" else 0
-smoker = 1 if smoker == "Ya" else 0
+# Input fitur
+age = st.number_input('Umur', min_value=18, max_value=64, value=30)
+sex = st.selectbox('Jenis Kelamin', [0, 1], format_func=lambda x: 'Perempuan' if x==0 else 'Laki-laki')
+bmi = st.number_input('BMI', min_value=15.0, max_value=50.0, value=25.0)
+children = st.number_input('Jumlah Anak', min_value=0, max_value=5, value=0)
+smoker = st.selectbox('Perokok', [0, 1], format_func=lambda x: 'Tidak' if x==0 else 'Ya')
 
-# Create a button to trigger prediction
-if st.button("Prediksi"):
-    # Create a numpy array from the input values
-    X = np.array([[age, sex, bmi, children, smoker]])
+# Tombol prediksi
+if st.button('Prediksi Biaya Asuransi'):
+    # Siapkan input
+    input_data = np.array([[age, sex, bmi, children, smoker]])
+    
+    # Scaling input
+    input_scaled = scaler.transform(input_data)
+    
+    # Prediksi
+    prediction = model.predict(input_scaled)
+    
+    # Tampilkan hasil
+    st.success(f'Estimasi Biaya Asuransi: ${prediction[0]:,.2f}')
 
-    # Make prediction using the loaded model
-    prediction = model.predict(X)[0]
-
-    # Display the prediction
-    st.write("Prediksi Premi Asuransi: Rp.", round(prediction, 2))
-
-    # Tambahkan NIM dan nama Anda di sini (sesuaikan dengan kebutuhan)
-    st.write("Dibuat oleh: [2021230045] - [RIZKI ARDI KURNIAWAN KUSWORO]")
+# Footer
+st.markdown('---')
+st.markdown('© 2024 Aplikasi Prediksi Biaya Asuransi')
